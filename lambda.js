@@ -35,7 +35,16 @@ exports.rss = function(event, context, callback) {
 
                 // This will be used for when we hook up API Gateway.
                 // It does no harm just being here for the Lambda only tutorial.
-                context.done(null, { message : result.rss.channel[0].item[0].title[0]._ });
+                // https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
+                // as of 8/30/2017 it appears that lambda proxy mandates a specific body
+                var proxyPackage = {
+                    "isBase64Encoded": false,
+                    "statusCode": 200,
+                    "headers": { "x-alpha": "alpha"  }  };
+        
+                proxyPackage['body'] = result.rss.channel[0].item[0].title[0]._ ;    
+
+                context.done(null, proxyPackage);
 
                 return;
             });
